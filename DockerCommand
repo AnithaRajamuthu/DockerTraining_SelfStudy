@@ -1,0 +1,270 @@
+Docker commands
+
+https://store.docker.com/editions/community/docker-ce-desktop-windows
+dockerid - rajamuthua
+email rajamuthua@vmware.com/geetharani123
+download.docker.com/linux/centos
+root/redhat
+
+docker for windows Docker 1.18
+vcenter.koenig-cloud.com
+student/student
+
+# yum install docker
+# rpm -qa | grep docker
+# docker -version
+[Dameon and docker client shud be of same version]
+#ll /etc/sysconfig/docker
+#cat /etc/sysconfig/docker -storage
+docker common,util,client -all in community edition
+
+# docker info
+#docker --help
+#docker images
+hub.docker.io  -search hello-world
+#docker search hello-world  ( thru daemon calls hub and fetches info)
+#docker pull hello-world (latest)
+#docker build -t ubuntu:14.04 .  //to create an ubuntu image
+#docker images
+#docker run hello-world
+#docker ps
+#docker ps -a (history)
+#docker run --name mycontainer hello-world
+#docker run -d ubuntu:14.04 /bin/sh  //keep docker running
+#docker images
+#docker ps
+#docker ps-a
+#docker run -it ubuntu:14.04 /bin/bash    //attach to a terminal & launch ubuntu
+#ls
+#apt-get update
+#exit
+#docker ps
+# ll /var/lib/docker/
+# ll /var/lib/docker/images //default uses overlay2
+# ll /var/lib/docker/images/overlay2
+# docker images
+#docker history hello-world:latest
+#docker start <id>
+#docker ps
+#docker exec -it eloquent_archimedes /bin/bash   //seperate bash inside terminal
+#ps
+#exit
+#docker ps
+#docker inspect
+# docker logs eloquent_archimedes
+#docker top eloquent_archimedes (containername to know processes running inside container)
+#ll /etc/sysconfig/docker*
+#cat /etc/sysconfig/docker-storage.rpmsave
+# git clone https://github.com/codeburster/docker-administration-labs.git
+#docker commit -m "custom-image" eloquent_archimedes
+#docker history <imageid>
+#docker pull ip:port/<acnt name>/custom-image:latest  //private images
+#docker tag <imageid> myimage:1.0
+#docker images
+#docker run -d -i myimage:1.0 /bin.bash
+#docker exec -it condescending_goldstine /bin/bash  ?/connect to container
+cat sample.txt
+#docker push rajamuthua/myimage
+#docker login
+#docker build 
+
+#docker run -it centos /bin/bash
+#yum update
+#ls /etc/yum.repos.d/Centos
+#yum repolist all
+#ip
+#systemctl stop squid
+#systemctl disable squid
+#docker ps
+
+
+
+
+
+On terminal
+wget https://download.docker.com/linux/centos/docker-ce.repo -p /etc/yum.repos.d
+
+
+Day 2  - Network , Private registry
+
+docker 2
+docker exec -it hardcore_dijkstra /bin/bash
+apt-get update
+iptables -L -t nat PREROUTING
+yum repolist all
+kill -9 24103
+rm -rf /var/ 
+yum repolist all
+yum cleanall
+
+vim  test
+ll
+su -
+root
+
+
+####for network issue ####
+
+systemctl stop squid
+systemctl disable squid
+yuminstall iptables iptables-services -y
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -t nat -F
+iptables -t mangle -F
+iptables -F
+iptables -X
+service iptables save
+systemctl restart docker
+
+#######
+
+Lab3 
+
+Task 1
+
+docker run -it --name AniApcahe2 ubuntu:16.04 /bin/bash
+     inside container 
+
+    apt-get update
+    apt-get intall net-tools apache2
+    ifconfig or ip a  -->to chk network confit
+    exit
+
+#tobuild image from this container
+
+#docker commit -a "Anitha rajamuthu <rajamuthua@vmware.com?" -m "A custom ubuntu image with apache2" CONTAINER_NAME
+
+
+
+Lab 3 
+
+- Task 1 -->
+# docker run -it ubuntu:16.04 /bin/bash
+### from with in the container run :
+	# apt-get update
+	# apt-get install net-tools apache2
+	# ifconfig or ip a  --> to check network configuration
+	# exit
+### To build image from this container
+# docker commit -a "AniApache2 <rajamuthua@vmware.com>" -m "A custom ubuntu image with apache2" AniApache2 
+
+# docker tag IMAGE_ID IMAGE_TAG
+docker tag <imageid> aniapache2image
+
+- Task 2 -->
+# mkdir custom_nginx_ubuntu
+# cd custom_nginx_ubuntu
+# vim Dockerfile
+	FROM ubuntu:14.04
+	MAINTAINER mayank sachan <mayank.sachan@koenig-solutions.com>
+	RUN apt-get update && apt-get install -y nginx
+	RUN echo "Hi, I am in your container" > /usr/lib/share/nginx/index.html
+	CMD ["nginx", "-g daemonoff;"]
+	EXPOSE 80
+
+# docker build -t mayank1509/ubuntu-nginx:14.04 .
+# docker login
+# docker push mayank1509/ubuntu-nginx:14.04
+
+-- Task 3 -->
+# docker run -p 80 -di rajamuthua/aniapache2
+# curl container_id
+
+
+###
+
+##Creating private registry###
+
+#docker search registry
+#docker pull registry
+#docker run -d -p 5000:5000 --name registry registry     //registry program will run default on 5000
+#docker inspect registry
+#curl <ipaddress:5000>
+#vim Dockerfile
+  FROM ubuntu:14.04
+  RUN apt-get update && apt-get install -y net-tools
+  ADD Sample
+#docker build -t 172.17.0.2:5000/custom-image:1.0
+#docker add  --
+#docker push 172.17.0.2:5000/custom-image:1.0   //ssl enabled
+#vim /usr/lib/systemd/system/docker.service
+
+ExecStat   --insecure-registry=172.17.0.2:5000
+
+#systemctl daemon-reload
+#systemctl restart docker
+#docker ps-a
+#docker start registry
+#docker ps
+#docker push 172.17.0.2:5000/custom-image:1.0
+#docker exec -it registry /bin/sh
+/# ls /var/lib/registry/docker/registry/v2/repositories/custom-images/+layers/sha256
+/#exit
+
+#mv sample.txt sample1.txt
+# edit sample 1
+#docker add
+#docker history 172.17.0.2:5000/custom-image:2.0
+#docker tag imageid 172.17.0.2:5000/custom-image:2.0
+#docker tag oldimageid 172.17.0.2:5000/custom-image:2.0
+
+
+
+
+Day 2 -Lab4
+
+- Task 1 --> 
+# mkdir custom_image
+# cd custom_image
+# echo "This is sample file added from host" > sample.txt
+
+# vim Dockerfile
+	FROM ubuntu:14.04
+	RUN apt-get update
+	ADD sample.txt /etc/sample.txt
+
+# docker build -t custom_image:latest .
+
+# docker history custom_image:latest
+
+# docker tag Layer_ID custom_image:latest
+
+# docker history custom_image:latest			--> To verify
+
+
+- Task 2 -->
+# docker run -d -p 5000:5000 registry --name registry
+# docker ps
+# vim /usr/lib/systemd/system/docker.service
+	## make changes to this line "ExecStart=/usr/bin/dockerd"
+	## As This "ExecStart=/usr/bin/dockerd --insecure-registry=registry.example.com:5000"
+# echo "Container_IP   registry.example.com" >> /etc/hosts
+# systemctl daemon-reload
+# systemctl restart docker
+
+
+- Task 3 -->
+## In order to push image from Task 1 must be tagged correctly :
+
+# docker tag custom_image:latest registry.example.com:5000/custom_image:latest
+
+# docker push registry.example.com:5000/custom_image:latest
+	
+
+########
+
+#docker network ls
+#docker network create mydb_net
+#docker network ls
+#docker network inspect mydb_net
+#docker run -d --net=mydb_net my-image_nginx:2.0 (d -background)
+# curl <ip>
+
+
+
+Day 3
+
+
+
